@@ -1,3 +1,4 @@
+# Stage 1: compile-image – install dependencies
 FROM python:3.11.4-slim-bullseye AS compile-image
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
@@ -7,26 +8,25 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
 
 WORKDIR /app
 
+# Create and activate virtual environment
 RUN python -m venv /app
-# Make sure we use the virtualenv:
 ENV PATH="/app/bin:$PATH"
 
-RUN pip config --user set global.extra-index-url https://www.piwheels.org/simple
-
+# Copy requirements and install Python packages
 COPY requirements.txt .
-
-# RUN python3 -m pip install --no-cache-dir -U pip && \
 RUN pip3 install --upgrade --no-cache-dir pip && \
     python3 -m pip install --no-cache-dir -r requirements.txt
 
+# Copy the rest of the application
 COPY . /app
 
+# Stage 2: final image – runtime only
 FROM python:3.11.4-slim-bullseye
 
 ARG REPO=whittlem/pycryptobot
-
 LABEL org.opencontainers.image.source https://github.com/${REPO}
 
+# Install runtime system dependencies
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
     apt-get install --no-install-recommends -y \
     libatlas3-base libfreetype6 libjpeg62-turbo \
@@ -38,16 +38,14 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
     chown -R pycryptobot:pycryptobot /app
 
 WORKDIR /app
-
 USER pycryptobot
 
-# Make sure we use the virtualenv:
+# Set virtual environment path and matplotlib config
 ENV PATH="/app/bin:$PATH"
-
-# Make sure we have a config dir for matplotlib when we not the root user
 ENV MPLCONFIGDIR="/app/.config/matplotlib"
 
+# Copy the installed virtual environment and code from compile-image
 COPY --chown=pycryptobot:pycryptobot --from=compile-image /app /app
 
-# Pass parameters to the container run or mount your config.json into /app/
+# Default command – can be overridden
 ENTRYPOINT ["python", "start.py"]
