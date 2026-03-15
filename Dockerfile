@@ -50,4 +50,4 @@ ENV MPLCONFIGDIR="/app/.config/matplotlib"
 COPY --chown=pycryptobot:pycryptobot --from=compile-image /app /app
 
 # Pass parameters to the container run or mount your config.json into /app/
-ENTRYPOINT [ "python3", "-u", "pycryptobot.py" ]
+ENTRYPOINT ["python", "start.py"]
