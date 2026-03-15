@@ -1,6 +1,5 @@
 urllib3>=1.26.5
 pandas==1.5.1
-pandas-ta==0.3.14b0
 numpy
 requests==2.31.0
 matplotlib==3.3.3
