@@ -1,6 +1,5 @@
 # Stage 1: compile-image – install dependencies
 FROM python:3.12-slim AS compile-image
-FROM python:3.12-slim
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
     apt-get install --no-install-recommends -y \
@@ -22,7 +21,7 @@ RUN pip3 install --upgrade --no-cache-dir pip && \
 COPY . /app
 
 # Stage 2: final image – runtime only
-FROM python:3.11.4-slim-bullseye
+FROM python:3.12-slim
 
 ARG REPO=whittlem/pycryptobot
 LABEL org.opencontainers.image.source https://github.com/${REPO}
